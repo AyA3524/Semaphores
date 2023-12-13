@@ -16,7 +16,7 @@ Used for binary signaling, often for protecting critical sections.
 Counting Semaphores:
 Can have values greater than 1.
 Used for managing resources where multiple units can be allocated or released.
-Here's a simple example in pseudocode to illustrate the basic concept:
+Here's a simple example to illustrate the basic concept:
 
 Semaphore mutex = 1;  // Binary semaphore (mutex)
 
