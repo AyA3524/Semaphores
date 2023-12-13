@@ -1,54 +1,88 @@
+
 import java.util.concurrent.Semaphore;
 
-public class Elevator {
-    private final Semaphore mutex = new Semaphore(1);  // Binary semaphore for critical section
-    private final Semaphore capacity = new Semaphore(5);  // Semaphore for elevator capacity
+class ElevatorController {
+    private final Semaphore mutex = new Semaphore(1);
+    private final Semaphore capacity = new Semaphore(5);
 
-    public void useElevator(String passengerName, int destinationFloor) {
-        try {
-            mutex.acquire();  // Entry to critical section
+    private int passengersInside = 0;
+    private boolean elevatorTriggered = false;
 
-            // Code representing actions before entering the elevator
+    public void useElevator(String passengerName) {
+       try
+       {
+            mutex.acquire();
 
-            capacity.acquire();  // Try to acquire a spot in the elevator
-            System.out.println(passengerName + " enters the elevator to floor " + destinationFloor);
+            // The first passenger triggers the elevator wait
+            if (passengersInside == 0) {
+                System.out.println("Elevator waiting for other passengers...");
+                elevatorTriggered = true;
+            }
 
+            // Passenger enters the elevator
+            capacity.acquire();
+            passengersInside++;
+            System.out.println(passengerName + " enters the elevator.");
+
+            mutex.release();
+           
             // Simulate time spent inside the elevator
-            Thread.sleep(2000);
+            Thread.sleep(3000);
+            System.out.println( " Elevator moving ! ");
+            mutex.acquire();
 
-            System.out.println(passengerName + " exits the elevator on floor " + destinationFloor);
-            capacity.release();  // Release the spot in the elevator
+            // Passenger exits the elevator
+            passengersInside--;
+            System.out.println(passengerName + " exits the elevator.");
 
-            // Code representing actions after exiting the elevator
+            capacity.release();
 
-        } catch (InterruptedException e) {
+            // Check if the elevator should trigger automatically
+           if (elevatorTriggered && passengersInside == 0) {
+                System.out.println("Elevator triggered automatically.");
+                elevatorTriggered = false;
+            }
+
+            mutex.release(); 
+
+        }
+       catch (InterruptedException e) {
             e.printStackTrace();
-        } finally {
-            mutex.release();  // Exit from critical section
         }
     }
 }
-public class Passenger extends Thread {
-    private final String name;
-    private final Elevator elevator;
 
-    public Passenger(String name, Elevator elevator) {
+class Passenger extends Thread {
+    private final String name;
+    private final ElevatorController controller;
+
+    public Passenger(String name, ElevatorController controller) {
         this.name = name;
-        this.elevator = elevator;
+        this.controller = controller;
     }
 
     @Override
     public void run() {
-        int destinationFloor = (int) (Math.random() * 10) + 1;  // Random destination floor
-        elevator.useElevator(name, destinationFloor);
+        try {
+            // Simulate passengers arriving at different times
+            Thread.sleep((long) (Math.random() * 5000));
+
+            // Passenger requests the elevator
+            controller.useElevator(name);
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
+}
 
+public class ElevatorSimulation {
     public static void main(String[] args) {
-        Elevator elevator = new Elevator();
+        ElevatorController controller = new ElevatorController();
 
-        // Simulate multiple passengers using the elevator
-        for (int i = 1; i <= 10; i++) {
-            Passenger passenger = new Passenger("Passenger " + i, elevator);
+        // Simulate multiple passengers arriving at different times
+        for (int i = 1; i <= 5; i++) {
+            Passenger passenger = new Passenger("Passenger " + i, controller);
             passenger.start();
         }
     }
