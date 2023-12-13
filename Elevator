@@ -1,0 +1,55 @@
+import java.util.concurrent.Semaphore;
+
+public class Elevator {
+    private final Semaphore mutex = new Semaphore(1);  // Binary semaphore for critical section
+    private final Semaphore capacity = new Semaphore(5);  // Semaphore for elevator capacity
+
+    public void useElevator(String passengerName, int destinationFloor) {
+        try {
+            mutex.acquire();  // Entry to critical section
+
+            // Code representing actions before entering the elevator
+
+            capacity.acquire();  // Try to acquire a spot in the elevator
+            System.out.println(passengerName + " enters the elevator to floor " + destinationFloor);
+
+            // Simulate time spent inside the elevator
+            Thread.sleep(2000);
+
+            System.out.println(passengerName + " exits the elevator on floor " + destinationFloor);
+            capacity.release();  // Release the spot in the elevator
+
+            // Code representing actions after exiting the elevator
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            mutex.release();  // Exit from critical section
+        }
+    }
+}
+public class Passenger extends Thread {
+    private final String name;
+    private final Elevator elevator;
+
+    public Passenger(String name, Elevator elevator) {
+        this.name = name;
+        this.elevator = elevator;
+    }
+
+    @Override
+    public void run() {
+        int destinationFloor = (int) (Math.random() * 10) + 1;  // Random destination floor
+        elevator.useElevator(name, destinationFloor);
+    }
+
+    public static void main(String[] args) {
+        Elevator elevator = new Elevator();
+
+        // Simulate multiple passengers using the elevator
+        for (int i = 1; i <= 10; i++) {
+            Passenger passenger = new Passenger("Passenger " + i, elevator);
+            passenger.start();
+        }
+    }
+}
