@@ -11,7 +11,7 @@ class ElevatorController {
     public void useElevator(String passengerName) {
        try
        {
-            mutex.acquire();
+            mutex.acquire(); // which means P fonction 
 
             // The first passenger triggers the elevator wait
             if (passengersInside == 0) {
@@ -24,7 +24,7 @@ class ElevatorController {
             passengersInside++;
             System.out.println(passengerName + " enters the elevator.");
 
-            mutex.release();
+            mutex.release();    // which means V  fonction  
            
             // Simulate time spent inside the elevator
             Thread.sleep(3000);
