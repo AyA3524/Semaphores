@@ -11,8 +11,7 @@ class ElevatorController {
     public void useElevator(String passengerName) {
        try
        {
-            mutex.acquire(); // which means P fonction 
-
+            mutex.acquire(); // which means P function
             // The first passenger triggers the elevator wait
             if (passengersInside == 0) {
                 System.out.println("Elevator waiting for other passengers...");
@@ -24,13 +23,11 @@ class ElevatorController {
             passengersInside++;
             System.out.println(passengerName + " enters the elevator.");
 
-            mutex.release();    // which means V  fonction  
-           
+            mutex.release();    // which means V  function  
             // Simulate time spent inside the elevator
             Thread.sleep(3000);
             System.out.println( " Elevator moving ! ");
             mutex.acquire();
-
             // Passenger exits the elevator
             passengersInside--;
             System.out.println(passengerName + " exits the elevator.");
@@ -79,7 +76,6 @@ class Passenger extends Thread {
 public class ElevatorSimulation {
     public static void main(String[] args) {
         ElevatorController controller = new ElevatorController();
-
         // Simulate multiple passengers arriving at different times
         for (int i = 1; i <= 5; i++) {
 // i just use i=5 , there is no relation with capacity .. 
